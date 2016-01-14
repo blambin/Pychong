@@ -1,2 +1,2 @@
 # Pychong
-pachong py
+pachong py 学习
