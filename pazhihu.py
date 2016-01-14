@@ -2,6 +2,7 @@
 import gzip
 import urllib.request
 import http.cookiejar
+import re
 
 def unzip(data):
     try:
@@ -29,11 +30,21 @@ def makeMyOpener(head = {
 
     return opener
 
+def getXSRF(data):
+    cer = re.compile('_xsrf=(.*?);')
+    strlist = cer.findall(data)
+    return strlist[0]
+
 
 #-----------------------------------------
 
 openr = makeMyOpener()
-print(type(openr))
+#print(type(openr))
 urlres = openr.open("http://www.zhihu.com/")
+#print(type(urlres))
 resp = urlres.read().decode('utf-8')
-print(resp)
+#print(resp)
+
+zhihuCookie = urlres.getheader("Set-Cookie")
+#print(zhihuCookie)
+print(getXSRF(zhihuCookie))
