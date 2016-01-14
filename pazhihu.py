@@ -1,8 +1,10 @@
+#! /usr/bin/env
 
 import gzip
 import urllib.request
 import http.cookiejar
 import re
+import time
 
 def unzip(data):
     try:
@@ -38,13 +40,51 @@ def getXSRF(data):
 
 #-----------------------------------------
 
+url = "http://www.zhihu.com/"
+email = 'blambinneng@gmail.com'
+password = '********'
+
 openr = makeMyOpener()
-#print(type(openr))
-urlres = openr.open("http://www.zhihu.com/")
-#print(type(urlres))
+
+urlres = openr.open(url)
+
 resp = urlres.read().decode('utf-8')
-#print(resp)
+
 
 zhihuCookie = urlres.getheader("Set-Cookie")
-#print(zhihuCookie)
+
 print(getXSRF(zhihuCookie))
+
+
+_xsrf = getXSRF(zhihuCookie)
+
+#
+
+# 开始用cookie登录
+urllogin = url + 'login/email'
+
+#处理验证码开始
+getcaptcha = url+'captcha.gif?r='+ str(int(time.time() * 1000))
+print(getcaptcha)
+logincache = openr.open(getcaptcha)
+with open('./captca.gif','wb') as f:
+    f.write(logincache.read())
+
+captcha = input("输入登录验证码：")
+
+postDict = {
+    '_xsrf':_xsrf,
+    'email':email,
+    'password':password,
+    'remember_me':'true',
+    'captcha':captcha,
+    }
+#处理验证码结束
+
+
+postData = urllib.parse.urlencode(postDict).encode()
+loginRespose = openr.open(urllogin,postData)
+
+#登录成功
+loginHtml = loginRespose.read().decode('utf-8')
+print("loginHtml is : " + loginHtml)
